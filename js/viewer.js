@@ -23,7 +23,7 @@ function parseVoteText(text) {
 // ─── POLLING ───
 async function poll() {
   try {
-    const data = await fetch('/api/tournament').then(r => r.json());
+    const data = await fetch('/api/tournament?_t=' + Date.now()).then(r => r.json());
     if (data.status === 'empty') {
       showWaiting();
       document.getElementById('header-status').textContent = 'ОЖИДАНИЕ';
