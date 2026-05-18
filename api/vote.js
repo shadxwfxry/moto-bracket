@@ -1,9 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_KEY
-);
+const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
@@ -22,7 +22,7 @@ export default async function handler(req, res) {
     const tally = {};
     data?.forEach(v => { tally[v.participant] = (tally[v.participant] || 0) + 1; });
 
-    res.setHeader('Cache-Control', 'public, s-maxage=1, stale-while-revalidate=1');
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     return res.json({ tally, total: data?.length || 0 });
   }
 

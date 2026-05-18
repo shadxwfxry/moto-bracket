@@ -1,9 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY
-);
+const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
@@ -15,11 +15,12 @@ export default async function handler(req, res) {
     .maybeSingle();
 
   if (error) return res.status(500).json({ error: error.message });
+
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+
   if (!data || !data.state || data.state.status === 'empty') {
-    res.setHeader('Cache-Control', 'public, s-maxage=1, stale-while-revalidate=1');
     return res.json({ status: 'empty' });
   }
 
-  res.setHeader('Cache-Control', 'public, s-maxage=1, stale-while-revalidate=1');
   res.json(data);
 }

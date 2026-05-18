@@ -74,10 +74,15 @@ async function startTournament() {
 
   state = { rounds: [firstRound], voting: null, champion: null, tid: Date.now() };
   autoAdvanceByes();
-  await pushState();
-  stopScanner();
-  document.getElementById('setup-block').style.display = 'none';
-  showBracket();
+  
+  try {
+    await pushState();
+    stopScanner();
+    document.getElementById('setup-block').style.display = 'none';
+    showBracket();
+  } catch {
+    state = null;
+  }
 }
 
 // ─── STATE LOGIC ───
@@ -107,26 +112,51 @@ function checkRoundComplete() {
 async function pickWinner(rIdx, mIdx, which) {
   const m = state.rounds[rIdx][mIdx];
   if (m.winner) return;
+  
+  const oldWinner = m.winner;
+  const oldRounds = JSON.parse(JSON.stringify(state.rounds));
+  const oldChampion = state.champion;
+  
   m.winner = which === 1 ? m.p1 : m.p2;
   checkRoundComplete();
-  await pushState();
-  renderBracket();
+  
+  try {
+    await pushState();
+    renderBracket();
+  } catch {
+    m.winner = oldWinner;
+    state.rounds = oldRounds;
+    state.champion = oldChampion;
+  }
 }
 
 async function openVoting(rIdx, mIdx) {
   const m = state.rounds[rIdx][mIdx];
   if (m.winner) return;
+  
+  const oldVoting = state.voting;
   state.voting = { active: true, rIdx, mIdx, match_key: `r${rIdx}_m${mIdx}_${state.tid || 0}` };
-  renderBracket();
-  startVotePoll();
-  pushState();
+  
+  try {
+    await pushState();
+    renderBracket();
+    startVotePoll();
+  } catch {
+    state.voting = oldVoting;
+  }
 }
 
 async function closeVoting() {
+  const oldVoting = state.voting;
   state.voting = null;
-  stopVotePoll();
-  renderBracket();
-  pushState();
+  
+  try {
+    await pushState();
+    stopVotePoll();
+    renderBracket();
+  } catch {
+    state.voting = oldVoting;
+  }
 }
 
 async function applyVoteWinner() {
@@ -137,35 +167,77 @@ async function applyVoteWinner() {
   const m = state.rounds[rIdx][mIdx];
   const v1 = tally[m.p1] || 0, v2 = tally[m.p2] || 0;
   if (v1 === 0 && v2 === 0) { alert('Нет голосов!'); return; }
+  
+  const oldWinner = m.winner;
+  const oldRounds = JSON.parse(JSON.stringify(state.rounds));
+  const oldChampion = state.champion;
+  const oldVoting = state.voting;
+  
   m.winner = v1 >= v2 ? m.p1 : m.p2;
   state.voting = null;
   checkRoundComplete();
   stopVotePoll();
-  await pushState();
-  renderBracket();
+  
+  try {
+    await pushState();
+    renderBracket();
+  } catch {
+    m.winner = oldWinner;
+    state.rounds = oldRounds;
+    state.champion = oldChampion;
+    state.voting = oldVoting;
+    startVotePoll();
+  }
 }
 
 async function resetTournament() {
   if (!confirm('Сбросить турнир?')) return;
-  state = null;
-  clearInterval(pollInterval);
-  pollInterval = null;
-  stopVotePoll();
-  await fetch('/api/update', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ token: adminToken, state: { status: 'empty', rounds: [], voting: null, champion: null } })
-  });
-  document.getElementById('bracket-block').style.display = 'none';
-  showSetup();
+  
+  try {
+    const res = await fetch('/api/update', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: adminToken, state: { status: 'empty', rounds: [], voting: null, champion: null } })
+    });
+    
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      const msg = errData.error || `${res.status} ${res.statusText}`;
+      alert(`Ошибка сброса: ${msg}`);
+      return;
+    }
+    
+    state = null;
+    clearInterval(pollInterval);
+    pollInterval = null;
+    stopVotePoll();
+    document.getElementById('bracket-block').style.display = 'none';
+    showSetup();
+  } catch (err) {
+    alert(`Ошибка сети при сбросе: ${err.message}`);
+  }
 }
 
 // ─── NETWORK ───
 async function pushState() {
   isUpdating = true;
-  await fetch('/api/update', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ token: adminToken, state })
-  });
+  try {
+    const res = await fetch('/api/update', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: adminToken, state })
+    });
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      const msg = errData.error || `${res.status} ${res.statusText}`;
+      alert(`Ошибка сохранения: ${msg}`);
+      throw new Error(`PushState failed: ${msg}`);
+    }
+  } catch (err) {
+    if (!err.message.startsWith('PushState failed')) {
+      alert(`Ошибка сети при сохранении: ${err.message}`);
+    }
+    isUpdating = false;
+    throw err;
+  }
   setTimeout(() => { isUpdating = false; }, 1000);
 }
 
