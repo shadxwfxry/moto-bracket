@@ -42,11 +42,13 @@ export default [
         getRoundLabel: 'readonly',
         makeVsDivider: 'readonly',
         esc: 'readonly',
+        Html5QrcodeScanner: 'readonly',
+        Html5QrcodeScanType: 'readonly',
       },
     },
     rules: {
       // Functions called from HTML via onclick="auth()", onclick="selCount(4)" etc.
-      'no-unused-vars': ['error', { varsIgnorePattern: '^(auth|selCount|onCustom|startTournament|closeVoting|applyVoteWinner|resetTournament|vote)$' }],
+      'no-unused-vars': ['error', { varsIgnorePattern: '^(auth|selCount|onCustom|startTournament|closeVoting|applyVoteWinner|resetTournament|vote|toggleScanner)$' }],
       'no-empty': ['error', { allowEmptyCatch: true }],
     },
   },

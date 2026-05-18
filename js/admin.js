@@ -75,6 +75,7 @@ async function startTournament() {
   state = { rounds: [firstRound], voting: null, champion: null, tid: Date.now() };
   autoAdvanceByes();
   await pushState();
+  stopScanner();
   document.getElementById('setup-block').style.display = 'none';
   showBracket();
 }
@@ -284,4 +285,108 @@ function renderBracket() {
     });
     container.appendChild(block);
   });
+}
+
+// ─── QR CODE SCANNER ───
+let html5QrcodeScanner = null;
+
+function toggleScanner() {
+  const reader = document.getElementById('reader');
+  const btn = document.getElementById('scan-qr-btn');
+  
+  if (reader.classList.contains('hidden')) {
+    reader.classList.remove('hidden');
+    btn.textContent = '🛑 ОСТАНОВИТЬ СКАНИРОВАНИЕ';
+    btn.classList.replace('btn-cyan', 'btn-warn');
+    
+    if (typeof Html5QrcodeScanner === 'undefined') {
+      alert('Ошибка: библиотека сканера не загружена');
+      return;
+    }
+    
+    let supportedScanTypes = [];
+    if (typeof Html5QrcodeScanType !== 'undefined') {
+      supportedScanTypes = [Html5QrcodeScanType.SCAN_TYPE_CAMERA];
+    }
+    
+    html5QrcodeScanner = new Html5QrcodeScanner("reader", {
+      fps: 10,
+      qrbox: { width: 250, height: 250 },
+      rememberLastUsedCamera: true,
+      supportedScanTypes: supportedScanTypes
+    }, /* verbose= */ false);
+    
+    html5QrcodeScanner.render(onScanSuccess, onScanError);
+  } else {
+    stopScanner();
+  }
+}
+
+function stopScanner() {
+  const reader = document.getElementById('reader');
+  const btn = document.getElementById('scan-qr-btn');
+  
+  if (html5QrcodeScanner) {
+    html5QrcodeScanner.clear().then(() => {
+      html5QrcodeScanner = null;
+    }).catch(err => {
+      console.error("Error stopping scanner:", err);
+      html5QrcodeScanner = null;
+    });
+  }
+  if (reader) reader.classList.add('hidden');
+  if (btn) {
+    btn.textContent = '📸 СКАНИРОВАТЬ QR УЧАСТНИКА';
+    btn.classList.replace('btn-warn', 'btn-cyan');
+  }
+}
+
+function onScanSuccess(decodedText) {
+  stopScanner();
+  
+  if (!decodedText.startsWith('http://') && !decodedText.startsWith('https://')) {
+    alert('Считанный QR-код не содержит валидный URL-адрес!');
+    return;
+  }
+  
+  fetch(decodedText)
+    .then(res => {
+      if (!res.ok) throw new Error('Ошибка HTTP: ' + res.status);
+      return res.json();
+    })
+    .then(data => {
+      const rider = (data.rider_name || data.rider || data.name || data.riderName || data.owner || '').trim();
+      const brand = (data.brand || data.mark || data.make || data.manufacturer || '').trim();
+      const model = (data.model || '').trim();
+      
+      const bikeInfo = [brand, model].filter(Boolean).join(' ');
+      const formatted = [rider, bikeInfo].filter(Boolean).join(' | ');
+      
+      if (!formatted) {
+        alert('Данные в QR-коде пусты или имеют неверный формат!');
+        return;
+      }
+      
+      const inputs = document.querySelectorAll('.name-inp');
+      let foundEmpty = false;
+      for (let input of inputs) {
+        if (!input.value.trim()) {
+          input.value = formatted;
+          foundEmpty = true;
+          break;
+        }
+      }
+      
+      if (!foundEmpty) {
+        alert('Все поля участников заполнены! Данные сканирования:\n' + formatted);
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      alert('Не удалось получить данные участника: ' + err.message);
+    });
+}
+
+function onScanError() {
+  // Silent ignore scanner errors during search frame
 }

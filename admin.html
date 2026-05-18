@@ -460,6 +460,56 @@
     ::-webkit-scrollbar-thumb {
       background: var(--border);
     }
+
+    /* HTML5 QR Code custom styles to match dark theme */
+    #reader {
+      border: 1px solid var(--border) !important;
+      background: var(--card) !important;
+    }
+    #reader video {
+      border-radius: 6px;
+    }
+    #reader img[alt="Info icon"] {
+      display: none !important;
+    }
+    #reader img[alt="Camera menu icon"] {
+      display: none !important;
+    }
+    #reader__camera_permission_button, #reader__dashboard_section_csr button, #reader button {
+      background: linear-gradient(135deg, var(--accent), #0096aa) !important;
+      color: #000 !important;
+      border: none !important;
+      padding: 10px 16px !important;
+      border-radius: 6px !important;
+      font-family: 'Rajdhani', sans-serif !important;
+      font-weight: 700 !important;
+      letter-spacing: 1px !important;
+      cursor: pointer !important;
+      margin: 8px auto !important;
+      display: inline-block !important;
+      transition: transform .1s !important;
+    }
+    #reader__camera_permission_button:active, #reader__dashboard_section_csr button:active, #reader button:active {
+      transform: scale(0.97) !important;
+    }
+    #reader select {
+      background: var(--bg) !important;
+      border: 1px solid var(--border) !important;
+      color: var(--text) !important;
+      padding: 8px 12px !important;
+      border-radius: 6px !important;
+      font-family: 'Share Tech Mono', monospace !important;
+      outline: none !important;
+      margin: 8px 0 !important;
+    }
+    #reader__status_span {
+      font-family: 'Share Tech Mono', monospace !important;
+      color: var(--muted) !important;
+      font-size: 11px !important;
+    }
+    #reader a {
+      color: var(--accent) !important;
+    }
   </style>
 </head>
 
@@ -495,6 +545,8 @@
           <button class="count-btn" onclick="selCount(8)">8</button>
           <button class="count-btn" onclick="selCount(16)">16</button>
         </div>
+        <button id="scan-qr-btn" class="btn btn-cyan" onclick="toggleScanner()" style="margin-top: 10px;">📸 СКАНИРОВАТЬ QR УЧАСТНИКА</button>
+        <div id="reader" class="hidden" style="width: 100%; border-radius: 8px; overflow: hidden; margin-top: 10px;"></div>
       </div>
 
       <div>
@@ -548,6 +600,7 @@
 
   </div>
 
+  <script src="https://unpkg.com/html5-qrcode"></script>
   <script src="/js/shared.js"></script>
   <script src="/js/admin.js"></script>
 </body>
