@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>BRACKET — ADMIN</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Share+Tech+Mono&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #12121a;
+      --card: #1a1a26;
+      --border: #2a2a3a;
+      --accent: #00e5ff;
+      --accent2: #ff3366;
+      --win: #00ff88;
+      --muted: #6060a0;
+      --text: #e0e0f0;
+      --gold: #ffd700;
+      --warn: #ff9500;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      max-width: 430px;
+      margin: 0 auto;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(255, 51, 102, 0.07) 0%, transparent 60%);
+    }
+
+    .header {
+      padding: 18px 20px 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: rgba(10, 10, 15, 0.95);
+      backdrop-filter: blur(10px);
+      z-index: 10;
+    }
+
+    .logo {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 18px;
+      color: var(--accent2);
+      letter-spacing: 3px;
+      text-shadow: 0 0 20px rgba(255, 51, 102, 0.5);
+    }
+
+    .badge-admin {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 2px;
+      background: rgba(255, 51, 102, 0.15);
+      color: var(--accent2);
+      border: 1px solid rgba(255, 51, 102, 0.3);
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    .content {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* AUTH */
+    #auth-block {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 3px;
+      margin-bottom: 4px;
+    }
+
+    .inp {
+      width: 100%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 15px;
+      padding: 12px 14px;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color .2s;
+    }
+
+    .inp:focus {
+      border-color: var(--accent2);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      transition: transform .1s, opacity .2s;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-red {
+      background: linear-gradient(135deg, var(--accent2), #aa0033);
+      color: #fff;
+      box-shadow: 0 4px 24px rgba(255, 51, 102, 0.3);
+    }
+
+    .btn-cyan {
+      background: linear-gradient(135deg, var(--accent), #0096aa);
+      color: #000;
+      box-shadow: 0 4px 24px rgba(0, 229, 255, 0.3);
+    }
+
+    .btn-warn {
+      background: linear-gradient(135deg, var(--warn), #cc7000);
+      color: #000;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    .btn-outline:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* SETUP */
+    #setup-block {
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .count-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .count-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      padding: 14px 0;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all .15s;
+    }
+
+    .count-btn.active {
+      border-color: var(--accent2);
+      color: var(--accent2);
+    }
+
+    .names-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .name-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .name-num {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      color: var(--accent2);
+      min-width: 24px;
+      text-align: right;
+    }
+
+    .name-inp {
+      flex: 1;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'Rajdhani', monospace;
+      font-size: 16px;
+      font-weight: 600;
+      padding: 10px 12px;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color .2s;
+    }
+
+    .name-inp:focus {
+      border-color: var(--accent2);
+    }
+
+    .name-inp::placeholder {
+      color: var(--muted);
+    }
+
+    /* BRACKET ADMIN */
+    #bracket-block {
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .round-block {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .round-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 4px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .round-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .match-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .match-card.active-match {
+      border-color: rgba(255, 51, 102, 0.4);
+    }
+
+    .participant {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 14px;
+      cursor: pointer;
+      transition: background .15s;
+      min-height: 50px;
+      position: relative;
+    }
+
+    .participant:first-child {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .participant.won {
+      background: rgba(0, 255, 136, 0.08);
+      cursor: default;
+    }
+
+    .participant.lost {
+      background: rgba(0, 0, 0, 0.2);
+      cursor: default;
+      opacity: .6;
+    }
+
+    .participant.selectable:active {
+      background: rgba(255, 51, 102, 0.12);
+    }
+
+    .participant.bye {
+      opacity: .35;
+      cursor: default;
+    }
+
+    .p-name {
+      flex: 1;
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .participant.won .p-name {
+      color: var(--win);
+    }
+
+    .participant.lost .p-name {
+      color: var(--muted);
+    }
+
+    .p-badge {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9px;
+      padding: 3px 7px;
+      border-radius: 3px;
+    }
+
+    .badge-win {
+      background: rgba(0, 255, 136, 0.15);
+      color: var(--win);
+    }
+
+    .badge-vote {
+      background: rgba(255, 149, 0, 0.15);
+      color: var(--warn);
+    }
+
+    .vote-count {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      color: var(--warn);
+    }
+
+    /* VOTE PANEL */
+    .vote-panel {
+      background: rgba(255, 149, 0, 0.06);
+      border: 1px solid rgba(255, 149, 0, 0.2);
+      border-radius: 10px;
+      padding: 14px;
+    }
+
+    .vote-panel-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      color: var(--warn);
+      letter-spacing: 3px;
+      margin-bottom: 10px;
+    }
+
+    .vote-match-info {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    .vote-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .vote-actions .btn {
+      flex: 1;
+      padding: 11px;
+      font-size: 14px;
+    }
+
+    .status-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: var(--card);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--muted);
+    }
+
+    .dot.live {
+      background: var(--win);
+      box-shadow: 0 0 8px var(--win);
+      animation: blink 1.5s ease infinite;
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: .4
+      }
+    }
+
+    .status-text {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .section-title {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 3px;
+    }
+
+    .error {
+      color: var(--accent2);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      text-align: center;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">
+    <div class="logo">BRACKET</div>
+    <div class="badge-admin">ADMIN</div>
+  </div>
+
+  <div class="content">
+
+    <!-- AUTH -->
+    <div id="auth-block">
+      <div class="label">ADMIN ТОКЕН</div>
+      <input class="inp" type="password" id="token-inp" placeholder="Введи токен..."
+        onkeydown="if(event.key==='Enter')auth()">
+      <button class="btn btn-red" onclick="auth()">ВОЙТИ</button>
+      <div class="error hidden" id="auth-error">Неверный токен</div>
+    </div>
+
+    <!-- SETUP -->
+    <div id="setup-block">
+      <div class="status-bar">
+        <div class="dot live"></div>
+        <div class="status-text">АВТОРИЗОВАН — НАСТРОЙКА ТУРНИРА</div>
+      </div>
+
+      <div>
+        <div class="label">УЧАСТНИКОВ</div>
+        <div class="count-grid">
+          <button class="count-btn" onclick="selCount(2)">2</button>
+          <button class="count-btn active" onclick="selCount(4)">4</button>
+          <button class="count-btn" onclick="selCount(8)">8</button>
+          <button class="count-btn" onclick="selCount(16)">16</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="label">ИЛИ ВРУЧНУЮ</div>
+        <input class="inp" type="number" min="2" max="64" placeholder="Количество..." id="custom-n"
+          oninput="onCustom(this)">
+      </div>
+
+      <div>
+        <div class="label" style="margin-bottom:10px">ИМЕНА УЧАСТНИКОВ</div>
+        <div class="names-list" id="names-list"></div>
+      </div>
+
+      <button class="btn btn-red" onclick="startTournament()">ЗАПУСТИТЬ ТУРНИР →</button>
+    </div>
+
+    <!-- BRACKET ADMIN -->
+    <div id="bracket-block">
+      <div class="status-bar">
+        <div class="dot live"></div>
+        <div class="status-text" id="status-text">ТУРНИР ИДЁТ</div>
+      </div>
+
+      <div id="vote-panel" class="vote-panel hidden">
+        <div class="vote-panel-label">🗳 ГОЛОСОВАНИЕ АКТИВНО</div>
+        <div class="vote-match-info" id="vote-match-info">—</div>
+        <div style="display:flex;gap:16px;margin-bottom:10px">
+          <div style="flex:1;text-align:center">
+            <div class="vote-count" id="vote-count-1">0 голосов</div>
+            <div class="p-name" id="vote-name-1" style="font-size:13px"></div>
+          </div>
+          <div style="font-family:'Share Tech Mono',monospace;color:var(--muted);font-size:12px;align-self:center">VS
+          </div>
+          <div style="flex:1;text-align:center">
+            <div class="vote-count" id="vote-count-2">0 голосов</div>
+            <div class="p-name" id="vote-name-2" style="font-size:13px"></div>
+          </div>
+        </div>
+        <div class="vote-actions">
+          <button class="btn btn-cyan" onclick="closeVoting()" style="font-size:13px;letter-spacing:1px">ЗАКРЫТЬ
+            ГОЛОСОВАНИЕ</button>
+          <button class="btn btn-warn" onclick="applyVoteWinner()" style="font-size:13px;letter-spacing:1px">ПРИМЕНИТЬ
+            РЕЗУЛЬТАТ</button>
+        </div>
+      </div>
+
+      <div id="rounds-container" style="display:flex;flex-direction:column;gap:24px"></div>
+
+      <button class="btn btn-outline" onclick="resetTournament()">СБРОСИТЬ ТУРНИР</button>
+    </div>
+
+  </div>
+
+  <script src="/js/shared.js"></script>
+  <script src="/js/admin.js"></script>
+</body>
+
+</html>

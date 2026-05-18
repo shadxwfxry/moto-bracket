@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>MOTO BRACKET</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Share+Tech+Mono&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #12121a;
+      --card: #1a1a26;
+      --border: #2a2a3a;
+      --accent: #00e5ff;
+      --accent2: #ff3366;
+      --win: #00ff88;
+      --muted: #6060a0;
+      --text: #e0e0f0;
+      --gold: #ffd700;
+      --warn: #ff9500;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      max-width: 430px;
+      margin: 0 auto;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 60% 40% at 50% 0%, rgba(0, 229, 255, 0.06) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 30% at 80% 80%, rgba(255, 51, 102, 0.05) 0%, transparent 50%);
+    }
+
+    .header {
+      padding: 18px 20px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: rgba(10, 10, 15, 0.95);
+      backdrop-filter: blur(10px);
+      z-index: 10;
+    }
+
+    .logo {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 20px;
+      color: var(--accent);
+      letter-spacing: 4px;
+      text-shadow: 0 0 20px rgba(0, 229, 255, 0.4);
+    }
+
+    .logo span {
+      color: var(--accent2);
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--muted);
+      flex-shrink: 0;
+    }
+
+    .dot.live {
+      background: var(--win);
+      box-shadow: 0 0 8px var(--win);
+      animation: blink 1.5s ease infinite;
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: .3
+      }
+    }
+
+    .live-text {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .content {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* WAITING */
+    #waiting {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 70vh;
+      gap: 16px;
+      text-align: center;
+    }
+
+    .wait-icon {
+      font-size: 48px;
+      animation: spin 3s linear infinite;
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0)
+      }
+
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    .wait-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .wait-sub {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 3px;
+    }
+
+    /* VOTE BANNER */
+    #vote-banner {
+      background: linear-gradient(135deg, rgba(255, 149, 0, 0.12), rgba(255, 51, 102, 0.08));
+      border: 1px solid rgba(255, 149, 0, 0.3);
+      border-radius: 12px;
+      padding: 16px;
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      animation: fadeIn .4s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-8px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    .vote-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .vote-icon {
+      font-size: 18px;
+    }
+
+    .vote-title {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: var(--warn);
+      letter-spacing: 3px;
+    }
+
+    .vote-match {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 0 0 4px;
+    }
+
+    .vote-sub {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .vote-btns {
+      display: flex;
+      gap: 10px;
+    }
+
+    .vote-btn {
+      flex: 1;
+      padding: 16px 10px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      transition: transform .1s, opacity .2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .vote-btn:active {
+      transform: scale(0.96);
+    }
+
+    .vote-btn-1 {
+      background: linear-gradient(135deg, rgba(0, 229, 255, 0.2), rgba(0, 229, 255, 0.05));
+      border: 1px solid rgba(0, 229, 255, 0.3);
+      color: var(--accent);
+    }
+
+    .vote-btn-2 {
+      background: linear-gradient(135deg, rgba(255, 51, 102, 0.2), rgba(255, 51, 102, 0.05));
+      border: 1px solid rgba(255, 51, 102, 0.3);
+      color: var(--accent2);
+    }
+
+    .vote-btn.voted-for {
+      opacity: 1;
+      box-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
+    }
+
+    .vote-btn.voted-other {
+      opacity: 0.4;
+    }
+
+    .vote-btn.disabled {
+      cursor: default;
+    }
+
+    .vote-count-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      opacity: .7;
+    }
+
+    .vote-bar {
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .vote-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width .5s ease;
+    }
+
+    .bar-1 {
+      background: var(--accent);
+    }
+
+    .bar-2 {
+      background: var(--accent2);
+    }
+
+    .voted-label {
+      text-align: center;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      color: var(--win);
+    }
+
+    /* BRACKET */
+    .round-block {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .round-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 4px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .round-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .match-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .match-card.voting-match {
+      border-color: rgba(255, 149, 0, 0.3);
+    }
+
+    .participant {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 14px;
+      min-height: 50px;
+    }
+
+    .participant:first-child {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .participant.won {
+      background: rgba(0, 255, 136, 0.07);
+    }
+
+    .participant.lost {
+      opacity: .5;
+    }
+
+    .participant.bye {
+      opacity: .3;
+    }
+
+    .p-name {
+      flex: 1;
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .participant.won .p-name {
+      color: var(--win);
+    }
+
+    .participant.lost .p-name {
+      color: var(--muted);
+    }
+
+    .p-badge {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9px;
+      padding: 3px 7px;
+      border-radius: 3px;
+    }
+
+    .badge-win {
+      background: rgba(0, 255, 136, 0.15);
+      color: var(--win);
+    }
+
+    .badge-live {
+      background: rgba(255, 149, 0, 0.15);
+      color: var(--warn);
+      animation: blink 1.5s ease infinite;
+    }
+
+    /* CHAMPION */
+    #champion-block {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+      gap: 16px;
+      text-align: center;
+    }
+
+    .trophy-anim {
+      font-size: 64px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        filter: drop-shadow(0 0 20px rgba(255, 215, 0, .4))
+      }
+
+      50% {
+        filter: drop-shadow(0 0 50px rgba(255, 215, 0, .9))
+      }
+    }
+
+    .champ-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 4px;
+    }
+
+    .champ-name {
+      font-size: 42px;
+      font-weight: 700;
+      color: var(--gold);
+      text-shadow: 0 0 40px rgba(255, 215, 0, .5);
+    }
+
+    ::-webkit-scrollbar {
+      width: 4px
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg)
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border)
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="header">
+    <div class="logo">MOTO <span>BR</span></div>
+    <div class="dot live" id="header-dot"></div>
+    <div class="live-text" id="header-status">ПОДКЛЮЧЕНИЕ...</div>
+  </div>
+
+  <div class="content">
+
+    <!-- WAITING -->
+    <div id="waiting">
+      <div class="wait-icon">⚙️</div>
+      <div class="wait-title">Ожидание турнира</div>
+      <div class="wait-sub">Организатор скоро начнёт</div>
+    </div>
+
+    <!-- VOTE BANNER -->
+    <div id="vote-banner">
+      <div class="vote-header">
+        <div class="vote-icon">🗳</div>
+        <div class="vote-title">ГОЛОСУЙ СЕЙЧАС</div>
+      </div>
+      <div class="vote-match" id="vm-match">— vs —</div>
+      <div class="vote-sub">Кто выиграл в трюках?</div>
+      <div class="vote-btns">
+        <button class="vote-btn vote-btn-1" id="vbtn1" onclick="vote(1)">
+          <span id="vname1">—</span>
+          <span class="vote-count-label" id="vcnt1">0</span>
+        </button>
+        <button class="vote-btn vote-btn-2" id="vbtn2" onclick="vote(2)">
+          <span id="vname2">—</span>
+          <span class="vote-count-label" id="vcnt2">0</span>
+        </button>
+      </div>
+      <div class="vote-bar">
+        <div class="vote-bar-fill bar-1" id="vbar1" style="width:50%"></div>
+      </div>
+      <div class="voted-label hidden" id="voted-ok">✓ Твой голос засчитан</div>
+    </div>
+
+    <!-- BRACKET -->
+    <div id="rounds-container" style="display:flex;flex-direction:column;gap:20px"></div>
+
+    <!-- CHAMPION -->
+    <div id="champion-block">
+      <div class="champ-label">ПОБЕДИТЕЛЬ ТУРНИРА</div>
+      <div class="trophy-anim">🏆</div>
+      <div class="champ-name" id="champ-name">—</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:3px">CHAMPION
+      </div>
+    </div>
+
+  </div>
+
+  <script src="/js/shared.js"></script>
+  <script src="/js/viewer.js"></script>
+</body>
+
+</html>
